@@ -14,10 +14,10 @@ def adjust_txn(txn: Txn) -> AdjustedTxn:
 
 
 def prices_items2txn(date: str, prices_items: dict, account: str) -> Txn:
-    price = prices_items["aprice"]["contents"]["aquantity"]["floatingPoint"]
-    base_cur = prices_items["aprice"]["contents"]["acommodity"]
+    price = prices_items["acost"]["contents"]["aquantity"]["floatingPoint"]
+    base_cur = prices_items["acost"]["contents"]["acommodity"]
     qtty = prices_items["aquantity"]["floatingPoint"]
-    price_type = prices_items["aprice"]["tag"]
+    price_type = prices_items["acost"]["tag"]
 
     txn = Txn(date, price, base_cur, qtty, account, price_type)
     return txn
@@ -43,7 +43,7 @@ def hledger2txn(
         for txn in txns_list
         for posting_items in txn["tpostings"]
         for prices_items in posting_items["pamount"]
-        if prices_items["acommodity"].upper() == cur.upper() and prices_items["aprice"]
+        if prices_items["acommodity"].upper() == cur.upper() and prices_items["acost"]
     ]
 
     adjusted_txns = [adjust_txn(txn) for txn in txns]
