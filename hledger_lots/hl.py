@@ -7,7 +7,7 @@ from .lib import AdjustedTxn, Txn, get_avg_fifo, get_files_comm, get_xirr
 
 
 def adjust_txn(txn: Txn) -> AdjustedTxn:
-    price = txn.price if txn.type == "UnitPrice" else txn.price / txn.qtty
+    price = txn.price if txn.type == "UnitCost" else txn.price / txn.qtty
 
     result = AdjustedTxn(txn.date, price, txn.base_cur, txn.qtty, txn.acct)
     return result

@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 from datetime import datetime
 from typing import Optional, Tuple
 
@@ -98,7 +99,8 @@ class AllFifoInfo(AllInfo):
 
     @property
     def infos(self):
-        infos = [self.get_info(com) for com in self.commodities]
+        with Pool() as pool:
+            infos = pool.map(self.get_info, self.commodities)
         infos = [info for info in infos if info is not None]
         return infos
 

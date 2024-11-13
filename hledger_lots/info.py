@@ -39,7 +39,7 @@ def get_last_price(files_comm: List[str], commodity: str):
         *files_comm,
         "prices",
         f"cur:{commodity}",
-        "--infer-reverse-prices",
+        "--show-reverse",
     ]
     prices_proc = subprocess.run(prices_comm, capture_output=True)
     prices_str = prices_proc.stdout.decode("utf8")

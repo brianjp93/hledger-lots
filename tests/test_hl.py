@@ -16,7 +16,7 @@ class TestAdjustTxn:
             base_cur="USD",
             qtty=1.0,
             acct="Acct1",
-            type="UnitPrice",
+            type="UnitCost",
         )
         expected = AdjustedTxn(
             date="2022-01-01", price=10.0, base_cur="USD", qtty=1.0, acct="Acct1"
