@@ -189,7 +189,6 @@ def list_commodities(obj: Obj, output_format: str):
 
     file = obj["file"]
     opt = obj["opt"]
-    lots_info = AllInfo(file, opt.no_desc)
 
     lots_info = (
         AllAvgInfo(file, opt.no_desc, opt.check)
