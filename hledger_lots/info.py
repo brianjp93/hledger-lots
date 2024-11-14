@@ -9,7 +9,7 @@ from typing import List, Optional, Tuple, TypedDict
 from tabulate import tabulate
 
 from .hl import hledger2txn
-from .lib import adjust_commodity, get_files_comm, get_xirr
+from .lib import get_files_comm, get_xirr
 
 
 class LotsInfo(TypedDict):

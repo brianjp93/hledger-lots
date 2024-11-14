@@ -4,7 +4,6 @@ import rich_click as click
 
 from .avg_info import AllAvgInfo, AvgInfo
 from .fifo_info import AllFifoInfo, FifoInfo
-from .info import AllInfo
 from .lib import get_default_file, get_file_from_stdin, get_files_comm
 from .options import Options, get_options
 from .prices_yahoo import YahooPrices

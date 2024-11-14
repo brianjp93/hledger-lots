@@ -4,8 +4,6 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import List, Optional
 
-from hledger_lots.hl import adjust_txn
-
 from . import checks
 from .lib import AdjustedTxn, CostMethodError, adjust_commodity, get_xirr
 
