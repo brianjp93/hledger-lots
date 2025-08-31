@@ -9,8 +9,7 @@ from textwrap import dedent
 
 from tabulate import tabulate
 
-from .hl import hledger2txn
-from .lib import get_files_comm, get_xirr
+from .lib import AdjustedTxn, get_files_comm, get_xirr
 
 
 class LotsInfo(TypedDict):
@@ -34,33 +33,41 @@ class Price:
     cur: str
 
 
-def get_last_price(files_comm: list[str], commodity: str):
+LAST_PRICE_DICT: dict[str, tuple[date, float]] = {}
+
+
+def get_last_price_dict(files_comm: list[str]):
+    if LAST_PRICE_DICT:
+        return LAST_PRICE_DICT
     prices_comm = [
         "hledger",
         *files_comm,
         "prices",
-        f"cur:{commodity}",
         "--show-reverse",
     ]
     prices_proc = subprocess.run(prices_comm, capture_output=True)
     prices_str = prices_proc.stdout.decode("utf8")
+    if not prices_str:
+        return {}
+    for d_string, commodity, price in re.findall(
+        r'(\d+-\d+-\d+) "?([^\s"]+)"?[^\d]*(\d+\.\d+)', prices_str
+    ):
+        comm = commodity.upper()
+        if comm not in LAST_PRICE_DICT:
+            last_date = datetime.strptime(d_string, "%Y-%m-%d").date()
+            LAST_PRICE_DICT[comm] = (last_date, float(price))
+        else:
+            new_date = datetime.strptime(d_string, "%Y-%m-%d").date()
+            old_date, _ = LAST_PRICE_DICT[comm]
+            if new_date > old_date:
+                LAST_PRICE_DICT[comm] = (new_date, float(price))
+    return LAST_PRICE_DICT
 
-    if prices_str == "":
-        return (None, None)
 
-    prices_list = [row.split(" ", 3) for row in prices_str.split("\n") if row != ""]
-
-    date_list = [
-        (row[1], re.sub(r"[^0-9.]", "", row[3])) for row in prices_list if len(row) > 0
-    ]
-
-    if len(date_list) == 0:
-        return (None, None)
-
-    last_date_str = date_list[-1][0]
-    last_date = datetime.strptime(last_date_str, "%Y-%m-%d").date()
-    last_price = float(date_list[-1][1])
-    return (last_date, last_price)
+def get_last_price(files_comm: list[str], commodity: str):
+    price_dict = get_last_price_dict(files_comm)
+    output = price_dict.get(commodity.upper(), (None, None))
+    return output
 
 
 def get_commodities(journals: tuple[str, ...]):
@@ -75,12 +82,16 @@ def get_commodities(journals: tuple[str, ...]):
 
 class Info:
     def __init__(
-        self, journals: tuple[str, ...], commodity: str, no_desc: str | None = None
+        self,
+        journals: tuple[str, ...],
+        commodity: str,
+        txns: list[AdjustedTxn],
+        no_desc: str | None = None,
     ) -> None:
         self.journals = journals
         self.files_comm = get_files_comm(journals)
         self.commodity = commodity.upper()
-        self.txns = hledger2txn(journals, commodity, no_desc)
+        self.txns = txns
 
         self.has_txn = len(self.txns) > 0
         self.last_price = get_last_price(self.files_comm, commodity)
@@ -96,19 +107,19 @@ class Info:
         info_txt = dedent(f"""\
             Info
             ----
-            Commodity:      {info['comm']}
-            Quantity:       {info['qtty']}
-            Amount:         {info['amount']}
-            Average Cost:   {info['avg_cost']}
+            Commodity:      {info["comm"]}
+            Quantity:       {info["qtty"]}
+            Amount:         {info["amount"]}
+            Average Cost:   {info["avg_cost"]}
         """)
 
         if self.market_date or self.market_price:
             info_txt += dedent(f"""\
-                Market Price:  {info['mkt_price']}
-                Market Amount: {info['mkt_amount']}
-                Market Profit: {info['mkt_profit']}
-                Market Date:   {info['mkt_date']}
-                Xirr:          {info['xirr']} (APR 30/360US)
+                Market Price:  {info["mkt_price"]}
+                Market Amount: {info["mkt_amount"]}
+                Market Profit: {info["mkt_profit"]}
+                Market Date:   {info["mkt_date"]}
+                Xirr:          {info["xirr"]} (APR 30/360US)
             """)
         else:
             info_txt += "\nMarket Data not available"

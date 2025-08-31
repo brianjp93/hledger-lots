@@ -2,6 +2,8 @@ from typing import TypedDict
 
 import rich_click as click
 
+from hledger_lots.hl import all_commodity_txns, hledger2txn
+
 from .avg_info import AllAvgInfo, AvgInfo
 from .fifo_info import AllFifoInfo, FifoInfo
 from .lib import get_default_file, get_file_from_stdin, get_files_comm
@@ -92,10 +94,11 @@ def buy(obj: Obj):
         click.echo("\n" + "Transaction not saved.")
 
     commodity = prompt_buy.info["comm"]
+    txns = hledger2txn(file, commodity)
     if opt.avg_cost:
-        info = AvgInfo(file, commodity, opt.check)
+        info = AvgInfo(file, commodity, txns, opt.check)
     else:
-        info = FifoInfo(file, commodity, opt.check)
+        info = FifoInfo(file, commodity, txns, opt.check)
 
     click.echo(info.table)
     click.echo(info.info_txt)
@@ -132,10 +135,11 @@ def sell(obj: Obj):
         click.echo("\n" + "Transaction not saved.")
 
     commodity = prompt_sell.info["comm"]
+    txns = hledger2txn(file, commodity)
     if opt.avg_cost:
-        info = AvgInfo(file, commodity, opt.check)
+        info = AvgInfo(file, commodity, txns, opt.check)
     else:
-        info = FifoInfo(file, commodity, opt.check)
+        info = FifoInfo(file, commodity, txns, opt.check)
 
     click.echo(info.table)
     click.echo(info.info_txt)
@@ -161,10 +165,11 @@ def view(obj: Obj, commodity: str):
     file = obj["file"]
     opt = obj["opt"]
 
+    txns = hledger2txn(file, commodity)
     if opt.avg_cost:
-        info = AvgInfo(file, commodity, opt.check, opt.no_desc)
+        info = AvgInfo(file, commodity, txns, opt.check, opt.no_desc)
     else:
-        info = FifoInfo(file, commodity, opt.check, opt.no_desc)
+        info = FifoInfo(file, commodity, txns, opt.check, opt.no_desc)
 
     click.echo(info.table)
     click.echo(info.info_txt)
@@ -189,10 +194,11 @@ def list_commodities(obj: Obj, output_format: str):
     file = obj["file"]
     opt = obj["opt"]
 
+    txns = all_commodity_txns(file, opt.no_desc)
     lots_info = (
-        AllAvgInfo(file, opt.no_desc, opt.check)
+        AllAvgInfo(file, opt.no_desc, txns, opt.check)
         if opt.avg_cost
-        else AllFifoInfo(file, opt.no_desc, opt.check)
+        else AllFifoInfo(file, opt.no_desc, txns, opt.check)
     )
 
     if output_format == "pretty":

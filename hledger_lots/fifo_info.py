@@ -1,11 +1,9 @@
-from multiprocessing import Pool
 from datetime import datetime
 
 from .checks import MultipleBaseCurrencies
 from .fifo import get_lots
-from .hl import hledger2txn
 from .info import AllInfo, Info, LotsInfo
-from .lib import dt_list2table, get_avg_fifo
+from .lib import AdjustedTxn, dt_list2table, get_avg_fifo
 
 
 class FifoInfo(Info):
@@ -13,17 +11,17 @@ class FifoInfo(Info):
         self,
         journals: tuple[str, ...],
         commodity: str,
+        commodity_txns: list[AdjustedTxn],
         check: bool,
         no_desc: str | None = None,
     ):
-        super().__init__(journals, commodity, no_desc)
+        super().__init__(journals, commodity, commodity_txns, no_desc)
         self.check = check
 
         self.lots = get_lots(self.txns, check)
         self.last_buy_date = self.lots[-1].date if len(self.lots) > 0 else None
 
-        self.buy_lots = get_lots(self.txns, check)
-        self.table = dt_list2table(self.buy_lots)
+        self.table = dt_list2table(self.lots)
 
     def get_info(self):
         if len(self.txns) == 0:
@@ -81,26 +79,32 @@ class FifoInfo(Info):
 
 
 class AllFifoInfo(AllInfo):
-    def __init__(self, journals: tuple[str, ...], no_desc: str, check: bool):
+    def __init__(
+        self,
+        journals: tuple[str, ...],
+        no_desc: str,
+        commodity_txns: dict[str, list[AdjustedTxn]],
+        check: bool,
+    ):
         super().__init__(journals, no_desc)
         self.check = check
+        self.commodity_txns = commodity_txns
 
     def get_info(self, commodity: str):
-        txns = hledger2txn(self.journals, commodity, self.no_desc)
+        txns = self.commodity_txns[commodity]
         try:
             lots = get_lots(txns, self.check)
         except MultipleBaseCurrencies:
             return None
 
         if len(lots) > 0:
-            lot_info = FifoInfo(self.journals, commodity, self.check).get_info()
+            lot_info = FifoInfo(self.journals, commodity, txns, self.check).get_info()
             return lot_info
 
     @property
     def infos(self):
-        with Pool() as pool:
-            infos = pool.map(self.get_info, self.commodities)
-        infos = [info for info in infos if info is not None]
+        infos = [self.get_info(comm) for comm in self.commodities]
+        infos = [x for x in infos if x is not None]
         return infos
 
     def infos_table(self, output_format: str):

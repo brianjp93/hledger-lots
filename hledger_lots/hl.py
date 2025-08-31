@@ -23,10 +23,13 @@ def prices_items2txn(date: str, prices_items: dict, account: str) -> Txn:
 
 
 def hledger2txn(
-    file_path: tuple[str, ...], cur: str, no_desc: str | None = None
+    file_path: tuple[str, ...],
+    cur: str,
+    no_desc: str | None = None,
 ) -> list[AdjustedTxn]:
     files_comm = get_files_comm(file_path)
     comm = ["hledger", *files_comm, "print", f"cur:{cur}", "--output-format=json"]
+    print(" ".join(comm))
     if no_desc:
         comm.append(f"not:desc:{no_desc}")
 
@@ -47,3 +50,40 @@ def hledger2txn(
 
     adjusted_txns = [adjust_txn(txn) for txn in txns]
     return adjusted_txns
+
+
+def all_commodity_txns(
+    file_path: tuple[str, ...],
+    no_desc: str | None = None,
+):
+    files_comm = get_files_comm(file_path)
+    comm = ["hledger", *files_comm, "print", "--output-format=json"]
+    if no_desc:
+        comm.append(f"not:desc:{no_desc}")
+
+    hl_proc = subprocess.run(comm, stdin=sys.stdin, capture_output=True)
+    if hl_proc.returncode != 0:
+        raise ValueError(hl_proc.stderr.decode("utf8"))
+
+    hl_data = hl_proc.stdout.decode("utf8")
+    txns_list = json.loads(hl_data)
+
+    txns: dict[str, list[AdjustedTxn]] = {}
+    for txn in txns_list:
+        for posting_items in txn["tpostings"]:
+            for prices_items in posting_items["pamount"]:
+                if prices_items["acost"]:
+                    comm = prices_items["acommodity"].upper()
+                    if comm not in txns:
+                        txns[comm] = []
+                    txns[comm].append(
+                        adjust_txn(
+                            prices_items2txn(
+                                txn["tdate"],
+                                prices_items,
+                                posting_items["paccount"],
+                            )
+                        )
+                    )
+    txns["$"] = []
+    return txns

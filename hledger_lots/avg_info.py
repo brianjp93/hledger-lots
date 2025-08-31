@@ -2,7 +2,7 @@ from datetime import datetime
 
 from .avg import get_avg_cost
 from .info import AllInfo, Info, LotsInfo
-from .lib import dt_list2table
+from .lib import AdjustedTxn, dt_list2table
 
 
 class AvgInfo(Info):
@@ -10,10 +10,11 @@ class AvgInfo(Info):
         self,
         journals: tuple[str, ...],
         commodity: str,
+        txns: list[AdjustedTxn],
         check: bool,
         no_desc: str | None = None,
     ):
-        super().__init__(journals, commodity, no_desc)
+        super().__init__(journals, commodity, txns, no_desc)
         self.check = check
         self.avg_lots = get_avg_cost(self.txns, self.check)
         self.table = dt_list2table(self.avg_lots)
@@ -68,12 +69,21 @@ class AvgInfo(Info):
 
 
 class AllAvgInfo(AllInfo):
-    def __init__(self, journals: tuple[str, ...], no_desc: str, check: bool):
+    def __init__(
+        self,
+        journals: tuple[str, ...],
+        no_desc: str,
+        all_txns: dict[str, list[AdjustedTxn]],
+        check: bool,
+    ):
         super().__init__(journals, no_desc)
         self.check = check
+        self.all_txns = all_txns
 
     def get_info(self, commodity: str):
-        avg_obj = AvgInfo(self.journals, commodity, self.check)
+        avg_obj = AvgInfo(
+            self.journals, commodity, self.all_txns[commodity.upper()], self.check
+        )
         if len(avg_obj.txns) == 0:
             return
         else:

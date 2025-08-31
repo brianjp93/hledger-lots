@@ -6,6 +6,8 @@ from textwrap import dedent
 import questionary
 from prompt_toolkit.shortcuts import CompleteStyle
 
+from hledger_lots.hl import all_commodity_txns
+
 from .avg_info import AllAvgInfo
 from .fifo_info import AllFifoInfo
 from .info import LotsInfo
@@ -159,10 +161,11 @@ class Prompt:
         return result
 
     def get_infos(self):
+        txns = all_commodity_txns(self.file, self.no_desc or "")
         if self.avg_cost:
-            infos = AllAvgInfo(self.file, self.no_desc or "", self.check)
+            infos = AllAvgInfo(self.file, self.no_desc or "", txns, self.check)
         else:
-            infos = AllFifoInfo(self.file, self.no_desc or "", self.check)
+            infos = AllFifoInfo(self.file, self.no_desc or "", txns, self.check)
 
         valid_infos = [info for info in infos.infos if float(info["qtty"]) > 0]
         return valid_infos

@@ -1,6 +1,7 @@
 import copy
 import subprocess
 from datetime import datetime
+from textwrap import dedent
 
 from . import checks
 from .lib import AdjustedTxn, CostMethodError, adjust_commodity, get_avg_fifo, get_xirr
@@ -99,12 +100,12 @@ def txn2hl(
     dt = datetime.strptime(date, "%Y-%m-%d").date()
     xirr = get_xirr(price, dt, txns) or 0 * 100
 
-    txn_hl = f"""
-{date} Sold {cur}  ; cost_method:fifo
-    ; commodity:{cur}, qtty:{sum_qtty:,.2f}, price:{price:,.2f}
-    ; avg_cost:{avg_cost:,.4f}, xirr:{xirr:.2f}% annual percent rate 30/360US
-    {cash_account}  {value:.2f} {base_curr}
-"""
+    txn_hl = dedent(f"""\
+        {date} Sold {cur}  ; cost_method:fifo
+            ; commodity:{cur}, qtty:{sum_qtty:,.2f}, price:{price:,.2f}
+            ; avg_cost:{avg_cost:,.4f}, xirr:{xirr:.2f}% annual percent rate 30/360US
+            {cash_account}  {value:.2f} {base_curr}
+        """)
 
     for txn in txns:
         txn_hl += f"    {txn.acct}    {txn.qtty * -1} {adj_comm} @ {txn.price} {base_curr}  ; buy_date:{txn.date}, base_cur:{txn.base_cur}\n"
