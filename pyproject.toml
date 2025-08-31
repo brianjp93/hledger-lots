@@ -28,7 +28,7 @@ author_email = "edkedk99@hotmail.com"
 name = "hledger_lots"
 version = "0.4.2"
 readme= "docs/README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 license = {text = "MIT License"}
 dependencies = [
 	     "click",

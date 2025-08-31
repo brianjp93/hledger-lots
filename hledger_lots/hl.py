@@ -1,7 +1,6 @@
 import json
 import subprocess
 import sys
-from typing import List, Optional, Tuple
 
 from .lib import AdjustedTxn, Txn, get_files_comm
 
@@ -24,8 +23,8 @@ def prices_items2txn(date: str, prices_items: dict, account: str) -> Txn:
 
 
 def hledger2txn(
-    file_path: Tuple[str, ...], cur: str, no_desc: Optional[str] = None
-) -> List[AdjustedTxn]:
+    file_path: tuple[str, ...], cur: str, no_desc: str | None = None
+) -> list[AdjustedTxn]:
     files_comm = get_files_comm(file_path)
     comm = ["hledger", *files_comm, "print", f"cur:{cur}", "--output-format=json"]
     if no_desc:

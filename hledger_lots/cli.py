@@ -1,4 +1,4 @@
-from typing import Tuple, TypedDict
+from typing import TypedDict
 
 import rich_click as click
 
@@ -13,7 +13,7 @@ from .prompt_sell import PromptSell
 
 
 class Obj(TypedDict):
-    file: Tuple[str, ...]
+    file: tuple[str, ...]
     opt: Options
 
 
@@ -46,7 +46,7 @@ click.rich_click.STYLE_OPTIONS_PANEL_BORDER = "dim"  # Possibly conceal
 )
 @click.pass_context
 @click.version_option()
-def cli(ctx: click.Context, file: Tuple[str, ...]):
+def cli(ctx: click.Context, file: tuple[str, ...]):
     """
     Commands to apply FIFO(first-in-first-out) or AVERAGE COST accounting principles without manual management of lots. Useful for transactions involving buying and selling foreign currencies or stocks.
 

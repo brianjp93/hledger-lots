@@ -1,6 +1,5 @@
 from multiprocessing import Pool
 from datetime import datetime
-from typing import Optional, Tuple
 
 from .checks import MultipleBaseCurrencies
 from .fifo import get_lots
@@ -12,10 +11,10 @@ from .lib import dt_list2table, get_avg_fifo
 class FifoInfo(Info):
     def __init__(
         self,
-        journals: Tuple[str, ...],
+        journals: tuple[str, ...],
         commodity: str,
         check: bool,
-        no_desc: Optional[str] = None,
+        no_desc: str | None = None,
     ):
         super().__init__(journals, commodity, no_desc)
         self.check = check
@@ -82,7 +81,7 @@ class FifoInfo(Info):
 
 
 class AllFifoInfo(AllInfo):
-    def __init__(self, journals: Tuple[str, ...], no_desc: str, check: bool):
+    def __init__(self, journals: tuple[str, ...], no_desc: str, check: bool):
         super().__init__(journals, no_desc)
         self.check = check
 

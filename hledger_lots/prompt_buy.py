@@ -1,6 +1,6 @@
 import subprocess
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from textwrap import dedent
 
 import questionary
 
@@ -28,10 +28,10 @@ def val_buy_qtty(answer: str):
 class PromptBuy(prompt.Prompt):
     def __init__(
         self,
-        file: Tuple[str, ...],
+        file: tuple[str, ...],
         avg_cost: bool,
         check: bool,
-        no_desc: Optional[str] = None,
+        no_desc: str | None = None,
     ) -> None:
         super().__init__(file, avg_cost, check, no_desc)
         all_commodities_txt = self.run_hledger_no_query_desc("commodities")
@@ -121,11 +121,11 @@ class PromptBuy(prompt.Prompt):
     def get_hl_txn(self):
         buy = self.prompt()
 
-        txn_raw = f"""
-{buy.date} Buy {buy.commodity}
-    {buy.commodity_account}    {buy.quantity} \"{buy.commodity}\" @ {buy.price} \"{buy.base_cur}\"
-    {buy.cash_account}
-"""
+        txn_raw = dedent(f"""\
+            {buy.date} Buy {buy.commodity}
+                {buy.commodity_account}    {buy.quantity} \"{buy.commodity}\" @ {buy.price} \"{buy.base_cur}\"
+                {buy.cash_account}
+        """)
 
         comm = ["hledger", "-f-", "print", "--explicit"]
         txn_proc = subprocess.run(

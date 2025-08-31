@@ -1,13 +1,12 @@
 import copy
 import subprocess
 from datetime import datetime
-from typing import List
 
 from . import checks
 from .lib import AdjustedTxn, CostMethodError, adjust_commodity, get_avg_fifo, get_xirr
 
 
-def check_sell(sell: AdjustedTxn, previous_buys: List[AdjustedTxn], check: bool):
+def check_sell(sell: AdjustedTxn, previous_buys: list[AdjustedTxn], check: bool):
     if not check:
         return
 
@@ -22,14 +21,14 @@ def check_sell(sell: AdjustedTxn, previous_buys: List[AdjustedTxn], check: bool)
         raise CostMethodError(sell, previous_buy.price, previous_buy.base_cur)
 
 
-def get_lots(txns: List[AdjustedTxn], check: bool) -> List[AdjustedTxn]:
+def get_lots(txns: list[AdjustedTxn], check: bool) -> list[AdjustedTxn]:
     local_txns = copy.deepcopy(txns)
     checks.check_base_currency(txns)
 
     buys = [txn for txn in local_txns if txn.qtty >= 0]
     sells = [txn for txn in local_txns if txn.qtty < 0]
 
-    buys_lot: List[AdjustedTxn] = buys if len(sells) == 0 else []
+    buys_lot: list[AdjustedTxn] = buys if len(sells) == 0 else []
     for sell in sells:
         previous_buys = [txn for txn in buys if txn.date <= sell.date]
         checks.check_short_sell_past(previous_buys, sell)
@@ -55,13 +54,13 @@ def get_lots(txns: List[AdjustedTxn], check: bool) -> List[AdjustedTxn]:
 
 
 def get_sell_lots(
-    lots: List[AdjustedTxn], sell_date: str, sell_qtty: float, check: bool
+    lots: list[AdjustedTxn], sell_date: str, sell_qtty: float, check: bool
 ):
     checks.check_short_sell_current(lots, sell_qtty)
     buy_lots = get_lots(lots, check)
     previous_buys = [lot for lot in buy_lots.copy() if lot.date <= sell_date]
 
-    fifo_lots: List[AdjustedTxn] = []
+    fifo_lots: list[AdjustedTxn] = []
     sell_qtty_curr = sell_qtty
 
     i = 0
@@ -85,7 +84,7 @@ def get_sell_lots(
 
 
 def txn2hl(
-    txns: List[AdjustedTxn],
+    txns: list[AdjustedTxn],
     date: str,
     cur: str,
     cash_account: str,

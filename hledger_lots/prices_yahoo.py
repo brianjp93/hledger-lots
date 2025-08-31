@@ -2,7 +2,6 @@ import sys
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import yfinance as yf
 from requests.exceptions import HTTPError
@@ -25,7 +24,7 @@ class Price:
 class YahooPrices:
     TAG = "yahoo_ticker"
 
-    def __init__(self, files: Tuple[str, ...]) -> None:
+    def __init__(self, files: tuple[str, ...]) -> None:
         self.files = files
         self.files_comm = get_files_comm(files)
 
@@ -67,7 +66,7 @@ class YahooPrices:
 
         return start_date
 
-    def prices2hledger(self, prices: List[Price]):
+    def prices2hledger(self, prices: list[Price]):
         prices_list = [
             f"P {price.date.strftime('%Y-%m-%d')} \"{price.name}\" {price.price} {price.cur}"
             for price in prices
@@ -80,11 +79,11 @@ class YahooPrices:
         self,
         commodity: CommodityTag,
         start_date: str,
-    ) -> List[Price]:
+    ) -> list[Price]:
         ticker = yf.Ticker(commodity["value"], session=self.session)
 
         try:
-            info: Dict[str, str] = ticker.info
+            info: dict[str, str] = ticker.info
         except HTTPError:
             print(f"; stderr: Can't download commodity {commodity}", file=sys.stderr)
             return []

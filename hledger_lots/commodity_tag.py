@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple, TypedDict
+from typing import TypedDict
 
 
 class CommodityTag(TypedDict):
@@ -21,11 +21,11 @@ def get_comment_tag_value(comment: str, tag: str) -> str:
 
 
 class CommodityDirective:
-    def __init__(self, files: Tuple[str, ...]):
+    def __init__(self, files: tuple[str, ...]):
         self.files = files
         self.rows = self.get_commodities_rows()
 
-    def get_commodities_rows(self) -> List[str]:
+    def get_commodities_rows(self) -> list[str]:
         rows = []
         for file in self.files:
             with open(file, "r") as f:

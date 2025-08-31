@@ -6,7 +6,6 @@ import tempfile
 from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 from pyxirr import DayCount, xirr
 from tabulate import tabulate
@@ -53,14 +52,14 @@ def get_default_file():
         return (str(default_path),)
 
 
-def get_files_comm(file_path: Tuple[str, ...]) -> List[str]:
+def get_files_comm(file_path: tuple[str, ...]) -> list[str]:
     files = []
     for file in file_path:
         files = [*files, "-f", file]
     return files
 
 
-def get_avg_fifo(txns: List[AdjustedTxn]):
+def get_avg_fifo(txns: list[AdjustedTxn]):
     total_qtty = sum(txn.qtty for txn in txns)
     if total_qtty == 0:
         return 0
@@ -71,8 +70,8 @@ def get_avg_fifo(txns: List[AdjustedTxn]):
 
 
 def get_xirr(
-    sell_price: float, sell_date: date, txns: List[AdjustedTxn]
-) -> Optional[float]:
+    sell_price: float, sell_date: date, txns: list[AdjustedTxn]
+) -> float | None:
     if len(txns) == 0:
         return 0
 
@@ -87,7 +86,7 @@ def get_xirr(
     return sell_xirr
 
 
-def dt_list2table(dt_list: List, tablefmt: str = "simple"):
+def dt_list2table(dt_list: list, tablefmt: str = "simple"):
     lots_dict = [asdict(dt) for dt in dt_list]
     table = tabulate(
         lots_dict,

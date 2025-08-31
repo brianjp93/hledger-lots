@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple
 
 import questionary
 
@@ -16,10 +15,10 @@ class SellInfo(prompt.Tradeinfo):
 class PromptSell(prompt.Prompt):
     def __init__(
         self,
-        file: Tuple[str, ...],
+        file: tuple[str, ...],
         avg_cost: bool,
         check: bool,
-        no_desc: Optional[str] = None,
+        no_desc: str | None = None,
     ) -> None:
         super().__init__(file, avg_cost, check, no_desc)
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
+
 
 NAMESPACE = "hledger-lots"
 KEYS = {"avg_cost", "check", "no_desc"}
@@ -27,9 +27,9 @@ class OptionError(BaseException):
 class HledgerVars:
     NAMESPACE_START = "#+"
 
-    def __init__(self, files: Tuple[str, ...]):
+    def __init__(self, files: tuple[str, ...]):
         self.files = files
-        self.vars: Dict[str, str] = {}
+        self.vars: dict[str, str] = {}
 
     def get_var_tuple(self, var_str: str):
         var_key_value = var_str.split(":", 1)
@@ -56,7 +56,7 @@ class HledgerVars:
         return vars_dict
 
     def get_file_vars(self, file: str, namespace: str):
-        result: Dict[str, str] = {}
+        result: dict[str, str] = {}
         with open(file, "r") as f:
             for row in f:
                 row_vars = self.get_row_vars(row, namespace)
@@ -66,7 +66,7 @@ class HledgerVars:
             return result
 
     def get_namespace_vars(self, namespace: str):
-        result: Dict[str, str] = {}
+        result: dict[str, str] = {}
         for file in self.files:
             file_vars = self.get_file_vars(file, namespace)
             if file_vars:
@@ -75,7 +75,7 @@ class HledgerVars:
         self.var = result
         return result
 
-    def get(self, key: str, default: Optional[str] = None):
+    def get(self, key: str, default: str | None = None):
         if not self.vars:
             return default
 
@@ -87,7 +87,7 @@ class HledgerVars:
         return value
 
 
-def get_options(files: Tuple[str, ...]):
+def get_options(files: tuple[str, ...]):
     hledger_vars = HledgerVars(files)
     vars = hledger_vars.get_namespace_vars(NAMESPACE)
     existing_keys = set(vars.keys())

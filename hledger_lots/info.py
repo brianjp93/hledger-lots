@@ -4,7 +4,8 @@ import subprocess
 from dataclasses import dataclass
 from datetime import date, datetime
 from io import StringIO
-from typing import List, Optional, Tuple, TypedDict
+from typing import TypedDict
+from textwrap import dedent
 
 from tabulate import tabulate
 
@@ -18,11 +19,11 @@ class LotsInfo(TypedDict):
     qtty: str
     amount: str
     avg_cost: str
-    mkt_price: Optional[str]
-    mkt_amount: Optional[str]
-    mkt_profit: Optional[str]
-    mkt_date: Optional[str]
-    xirr: Optional[str]
+    mkt_price: str | None
+    mkt_amount: str | None
+    mkt_profit: str | None
+    mkt_date: str | None
+    xirr: str | None
 
 
 @dataclass
@@ -33,7 +34,7 @@ class Price:
     cur: str
 
 
-def get_last_price(files_comm: List[str], commodity: str):
+def get_last_price(files_comm: list[str], commodity: str):
     prices_comm = [
         "hledger",
         *files_comm,
@@ -62,7 +63,7 @@ def get_last_price(files_comm: List[str], commodity: str):
     return (last_date, last_price)
 
 
-def get_commodities(journals: Tuple[str, ...]):
+def get_commodities(journals: tuple[str, ...]):
     files_comm = get_files_comm(journals)
     comm = ["hledger", *files_comm, "commodities"]
     commodities_proc = subprocess.run(comm, capture_output=True)
@@ -74,7 +75,7 @@ def get_commodities(journals: Tuple[str, ...]):
 
 class Info:
     def __init__(
-        self, journals: Tuple[str, ...], commodity: str, no_desc: Optional[str] = None
+        self, journals: tuple[str, ...], commodity: str, no_desc: str | None = None
     ) -> None:
         self.journals = journals
         self.files_comm = get_files_comm(journals)
@@ -92,23 +93,23 @@ class Info:
             return xirr
 
     def get_info_txt(self, info: LotsInfo):
-        info_txt = f"""
-Info
-----
-Commodity:      {info['comm']}
-Quantity:       {info['qtty']}
-Amount:         {info['amount']}
-Average Cost:   {info['avg_cost']}
-"""
+        info_txt = dedent(f"""\
+            Info
+            ----
+            Commodity:      {info['comm']}
+            Quantity:       {info['qtty']}
+            Amount:         {info['amount']}
+            Average Cost:   {info['avg_cost']}
+        """)
 
         if self.market_date or self.market_price:
-            info_txt += f"""
-Market Price:  {info['mkt_price']}
-Market Amount: {info['mkt_amount']}
-Market Profit: {info['mkt_profit']}
-Market Date:   {info['mkt_date']}
-Xirr:          {info['xirr']} (APR 30/360US)
-"""
+            info_txt += dedent(f"""\
+                Market Price:  {info['mkt_price']}
+                Market Amount: {info['mkt_amount']}
+                Market Profit: {info['mkt_profit']}
+                Market Date:   {info['mkt_date']}
+                Xirr:          {info['xirr']} (APR 30/360US)
+            """)
         else:
             info_txt += "\nMarket Data not available"
 
@@ -116,12 +117,12 @@ Xirr:          {info['xirr']} (APR 30/360US)
 
 
 class AllInfo:
-    def __init__(self, journals: Tuple[str, ...], no_desc: str) -> None:
+    def __init__(self, journals: tuple[str, ...], no_desc: str) -> None:
         self.journals = journals
         self.no_desc = no_desc
         self.commodities = get_commodities(journals)
 
-    def get_infos_table(self, infos: List[LotsInfo], output_format: str):
+    def get_infos_table(self, infos: list[LotsInfo], output_format: str):
         infos_list = [info for info in infos]
         infos_sorted = sorted(
             infos_list, key=lambda info: info["xirr"] or "", reverse=True
@@ -135,7 +136,7 @@ class AllInfo:
         )
         return table
 
-    def get_infos_csv(self, infos: List[LotsInfo]):
+    def get_infos_csv(self, infos: list[LotsInfo]):
         infos_list = [info for info in infos]
         infos_sorted = sorted(
             infos_list, key=lambda info: info["xirr"] or "", reverse=True

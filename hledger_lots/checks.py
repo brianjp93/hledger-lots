@@ -1,5 +1,3 @@
-from typing import List
-
 from .lib import AdjustedTxn
 
 
@@ -9,13 +7,13 @@ class MultipleBaseCurrencies(Exception):
         self.message = f"More than one base currency: {currencies}"
 
 
-def check_short_sell_past(previous_buys: List[AdjustedTxn], sell: AdjustedTxn):
+def check_short_sell_past(previous_buys: list[AdjustedTxn], sell: AdjustedTxn):
     previous_buys_qtty = sum([txn.qtty for txn in previous_buys])
     if abs(sell.qtty) > abs(previous_buys_qtty):
         raise ValueError(f"Short sell not allowed for sell {sell}")
 
 
-def check_short_sell_current(previous_buys: List[AdjustedTxn], sell_qtty: float):
+def check_short_sell_current(previous_buys: list[AdjustedTxn], sell_qtty: float):
     previous_buys_qtty = sum([txn.qtty for txn in previous_buys])
     if sell_qtty > previous_buys_qtty:
         raise ValueError(
@@ -23,13 +21,13 @@ def check_short_sell_current(previous_buys: List[AdjustedTxn], sell_qtty: float)
         )
 
 
-def check_base_currency(txns: List[AdjustedTxn]):
+def check_base_currency(txns: list[AdjustedTxn]):
     base_currencies = set(txn.base_cur for txn in txns)
     if len(base_currencies) > 1:
         raise MultipleBaseCurrencies(base_currencies)
 
 
-def check_available(txns: List[AdjustedTxn], account: str, sell_qtty: float):
+def check_available(txns: list[AdjustedTxn], account: str, sell_qtty: float):
     sum_qtty = sum(txn.qtty for txn in txns if txn.acct == account)
     if sell_qtty > sum_qtty:
         raise ValueError(
