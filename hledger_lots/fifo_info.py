@@ -107,8 +107,16 @@ class AllFifoInfo(AllInfo):
         infos = [x for x in infos if x is not None]
         return infos
 
-    def infos_table(self, output_format: str):
+    @property
+    def infos_with_qtty(self):
+        return [x for x in self.infos if int(float(x["qtty"]) * 100) > 0]
+
+    def infos_table(self, output_format: str, exclude_no_quantity=False):
+        if exclude_no_quantity:
+            return self.get_infos_table(self.infos_with_qtty, output_format)
         return self.get_infos_table(self.infos, output_format)
 
-    def infos_csv(self):
+    def infos_csv(self, exclude_no_quantity=False):
+        if exclude_no_quantity:
+            return self.get_infos_csv(self.infos_with_qtty)
         return self.get_infos_csv(self.infos)

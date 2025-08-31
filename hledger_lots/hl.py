@@ -29,7 +29,6 @@ def hledger2txn(
 ) -> list[AdjustedTxn]:
     files_comm = get_files_comm(file_path)
     comm = ["hledger", *files_comm, "print", f"cur:{cur}", "--output-format=json"]
-    print(" ".join(comm))
     if no_desc:
         comm.append(f"not:desc:{no_desc}")
 

@@ -202,12 +202,12 @@ def list_commodities(obj: Obj, output_format: str):
     )
 
     if output_format == "pretty":
-        table = lots_info.infos_table("mixed_grid")
+        table = lots_info.infos_table("mixed_grid", exclude_no_quantity=True)
     elif output_format == "csv":
-        infos_io = lots_info.infos_csv()
+        infos_io = lots_info.infos_csv(exclude_no_quantity=True)
         table = infos_io.read()
     else:
-        table = lots_info.infos_table("plain")
+        table = lots_info.infos_table("plain", exclude_no_quantity=True)
 
     click.echo(table)
 
