@@ -91,7 +91,7 @@ class AllFifoInfo(AllInfo):
         self.commodity_txns = commodity_txns
 
     def get_info(self, commodity: str):
-        txns = self.commodity_txns[commodity]
+        txns = self.commodity_txns.get(commodity, [])
         try:
             lots = get_lots(txns, self.check)
         except MultipleBaseCurrencies:
