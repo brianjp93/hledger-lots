@@ -123,8 +123,8 @@ class PromptBuy(prompt.Prompt):
 
         txn_raw = dedent(f"""\
             {buy.date} Buy {buy.commodity}
-            {buy.commodity_account}    {buy.quantity} \"{buy.commodity}\" @ {buy.price} \"{buy.base_cur}\"
-            {buy.cash_account}
+                {buy.commodity_account}    {buy.quantity} \"{buy.commodity}\" @ {buy.price} \"{buy.base_cur}\"
+                {buy.cash_account}
         """)
 
         comm = ["hledger", "-f-", "print", "--explicit"]
