@@ -76,6 +76,7 @@ def cli(ctx: click.Context, file: tuple[str, ...]):
 @click.option("--commodity_account", type=click.STRING, required=False)
 @click.option("--base_cur", type=click.STRING, required=False, default="$")
 @click.option("--append_file", type=click.STRING, required=False)
+@click.option("--print_only", type=click.STRING, required=False, is_flag=True)
 @click.pass_obj
 def buy(
     obj: Obj,
@@ -87,6 +88,7 @@ def buy(
     commodity_account,
     base_cur,
     append_file,
+    print_only,
 ):
     """
     Create a purchase transaction for a commodity by answering some prompts that tries to avoid errors with validation and using current journal data to filter possible answers and give informations that guides the user thru the process.\r
@@ -116,8 +118,9 @@ def buy(
     txn_print = prompt_buy.get_hl_txn()
     click.echo("\n" + txn_print)
 
-    if not append_file:
-        append_file = get_append_file(file[0])
+    if not print_only:
+        if not append_file:
+            append_file = get_append_file(file[0])
     if append_file:
         with open(append_file, "a") as f:
             f.write("\n" + txn_print)
@@ -143,6 +146,7 @@ def buy(
 @click.option("--cash_account", type=click.STRING, required=False)
 @click.option("--revenue_account", type=click.STRING, required=False)
 @click.option("--append_file", type=click.STRING, required=False)
+@click.option("--print_only", type=click.STRING, required=False, is_flag=True)
 @click.pass_obj
 def sell(
     obj: Obj,
@@ -153,6 +157,7 @@ def sell(
     cash_account,
     revenue_account,
     append_file,
+    print_only,
 ):
     """
     Create a transaction with automatic FIFO or AVERAGE COST for a commodity by answering some prompts that tries to avoid errors with validation and using current journal data to filter possible answers give informations that guides the user thru the process.\r
@@ -185,8 +190,9 @@ def sell(
     txn_print = prompt_sell.get_hl_txn()
     click.echo("\n" + txn_print)
 
-    if not append_file:
-        append_file = get_append_file(file[0])
+    if not print_only:
+        if not append_file:
+            append_file = get_append_file(file[0])
     if append_file:
         with open(append_file, "a") as f:
             f.write("\n" + txn_print)
