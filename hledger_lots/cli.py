@@ -68,8 +68,26 @@ def cli(ctx: click.Context, file: tuple[str, ...]):
 
 
 @click.command()
+@click.option("--commodity", type=click.STRING, required=False)
+@click.option("--date", type=click.STRING, required=False)
+@click.option("--quantity", type=click.FLOAT, required=False)
+@click.option("--price", type=click.FLOAT, required=False)
+@click.option("--cash_account", type=click.STRING, required=False)
+@click.option("--commodity_account", type=click.STRING, required=False)
+@click.option("--base_cur", type=click.STRING, required=False, default="$")
+@click.option("--append_file", type=click.STRING, required=False)
 @click.pass_obj
-def buy(obj: Obj):
+def buy(
+    obj: Obj,
+    commodity,
+    date,
+    quantity,
+    price,
+    cash_account,
+    commodity_account,
+    base_cur,
+    append_file,
+):
     """
     Create a purchase transaction for a commodity by answering some prompts that tries to avoid errors with validation and using current journal data to filter possible answers and give informations that guides the user thru the process.\r
 
@@ -82,11 +100,24 @@ def buy(obj: Obj):
 
     file = obj["file"]
     opt = obj["opt"]
-    prompt_buy = PromptBuy(file, opt.avg_cost, opt.check, opt.no_desc)
+    prompt_buy = PromptBuy(
+        file,
+        opt.avg_cost,
+        opt.check,
+        opt.no_desc,
+        commodity,
+        date,
+        quantity,
+        price,
+        cash_account,
+        base_cur,
+        commodity_account,
+    )
     txn_print = prompt_buy.get_hl_txn()
     click.echo("\n" + txn_print)
 
-    append_file = get_append_file(file[0])
+    if not append_file:
+        append_file = get_append_file(file[0])
     if append_file:
         with open(append_file, "a") as f:
             f.write("\n" + txn_print)
@@ -105,8 +136,24 @@ def buy(obj: Obj):
 
 
 @click.command()
+@click.option("--commodity", type=click.STRING, required=False)
+@click.option("--date", type=click.STRING, required=False)
+@click.option("--quantity", type=click.FLOAT, required=False)
+@click.option("--price", type=click.FLOAT, required=False)
+@click.option("--cash_account", type=click.STRING, required=False)
+@click.option("--revenue_account", type=click.STRING, required=False)
+@click.option("--append_file", type=click.STRING, required=False)
 @click.pass_obj
-def sell(obj: Obj):
+def sell(
+    obj: Obj,
+    commodity,
+    date,
+    quantity,
+    price,
+    cash_account,
+    revenue_account,
+    append_file,
+):
     """
     Create a transaction with automatic FIFO or AVERAGE COST for a commodity by answering some prompts that tries to avoid errors with validation and using current journal data to filter possible answers give informations that guides the user thru the process.\r
 
@@ -122,12 +169,24 @@ def sell(obj: Obj):
     """
     file = obj["file"]
     opt = obj["opt"]
-    prompt_sell = PromptSell(file, opt.avg_cost, opt.check, opt.no_desc)
+    prompt_sell = PromptSell(
+        file,
+        opt.avg_cost,
+        opt.check,
+        opt.no_desc,
+        commodity,
+        date,
+        quantity,
+        price,
+        cash_account,
+        revenue_account,
+    )
 
     txn_print = prompt_sell.get_hl_txn()
     click.echo("\n" + txn_print)
 
-    append_file = get_append_file(file[0])
+    if not append_file:
+        append_file = get_append_file(file[0])
     if append_file:
         with open(append_file, "a") as f:
             f.write("\n" + txn_print)

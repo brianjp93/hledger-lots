@@ -32,21 +32,35 @@ class PromptBuy(prompt.Prompt):
         avg_cost: bool,
         check: bool,
         no_desc: str | None = None,
+        commodity=None,
+        date=None,
+        quantity=None,
+        price=None,
+        cash_account=None,
+        base_cur=None,
+        commodity_account=None,
     ) -> None:
         super().__init__(file, avg_cost, check, no_desc)
+        print(self.initial_info)
+        self.commodity = commodity
+        self.date = date
+        self.quantity = quantity
+        self.price = price
+        self.cash_account = cash_account
+        self.base_cur = base_cur
+        self.commodity_account = commodity_account
         all_commodities_txt = self.run_hledger_no_query_desc("commodities")
         self.all_commodities = [
             com for com in all_commodities_txt.split("\n") if com != ""
         ]
-
-        print(self.initial_info)
         self.info = self.get_info()
         self.last_purchase = self.get_last_purchase(self.info)
 
     def get_info(self):
-        commodity = prompt.ask_commodities_text(self.all_commodities)
+        if not self.commodity:
+            self.commodity = prompt.ask_commodities_text(self.all_commodities)
         info_not_found = LotsInfo(
-            comm=commodity,
+            comm=self.commodity,
             cur="",
             qtty="0",
             amount="0",
@@ -58,7 +72,7 @@ class PromptBuy(prompt.Prompt):
             xirr=None,
         )
         info = next(
-            (info for info in self.infos if info["comm"] == commodity), info_not_found
+            (info for info in self.infos if info["comm"] == self.commodity), info_not_found
         )
         return info
 
@@ -119,7 +133,19 @@ class PromptBuy(prompt.Prompt):
         return result
 
     def get_hl_txn(self):
-        buy = self.prompt()
+        if all((self.date, self.quantity, self.price, self.cash_account, self.commodity_account, self.base_cur)):
+            buy = BuyInfo(
+                date=self.date,
+                quantity=self.quantity,
+                commodity=self.commodity,
+                base_cur=self.base_cur,
+                cash_account=self.cash_account,
+                commodity_account=self.commodity_account,
+                price=self.price,
+                value=self.price * self.quantity,
+            )
+        else:
+            buy = self.prompt()
 
         txn_raw = dedent(f"""\
             {buy.date} Buy {buy.commodity}

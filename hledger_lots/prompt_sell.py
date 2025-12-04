@@ -19,16 +19,28 @@ class PromptSell(prompt.Prompt):
         avg_cost: bool,
         check: bool,
         no_desc: str | None = None,
+        commodity=None,
+        date=None,
+        quantity=None,
+        price=None,
+        cash_account=None,
+        revenue_account=None,
     ) -> None:
         super().__init__(file, avg_cost, check, no_desc)
-
         print(self.initial_info)
+        self.commodity = commodity
+        self.date = date
+        self.quantity = quantity
+        self.price = price
+        self.cash_account = cash_account
+        self.revenue_account = revenue_account
         self.info = self.get_info()
         self.last_purchase = self.get_last_purchase(self.info)
 
     def get_info(self):
-        commodity = prompt.select_commodities_text(self.commodities)
-        info = next(info for info in self.infos if info["comm"] == commodity)
+        if not self.commodity:
+            self.commodity = prompt.select_commodities_text(self.commodities)
+        info = next(info for info in self.infos if info["comm"] == self.commodity)
         return info
 
     def ask_commodity_account(self, info: LotsInfo):
@@ -80,7 +92,19 @@ class PromptSell(prompt.Prompt):
         return result
 
     def get_hl_txn(self):
-        sell = self.prompt()
+        if all((self.date, self.quantity, self.price, self.cash_account, self.revenue_account)):
+            sell = SellInfo(
+                date=self.date,
+                quantity=self.quantity,
+                commodity=self.commodity,
+                cash_account=self.cash_account,
+                revenue_account=self.revenue_account,
+                commodity_account="",
+                price=self.price,
+                value=self.price * self.quantity,
+            )
+        else:
+            sell = self.prompt()
         commodity = sell.commodity
         adj_txns = hledger2txn(self.file, commodity, self.no_desc)
 
