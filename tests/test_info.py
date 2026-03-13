@@ -6,8 +6,15 @@ import pytest
 
 from hledger_lots.fifo_info import FifoInfo
 from hledger_lots.avg_info import AvgInfo
+from hledger_lots.hl import all_commodity_txns
+from hledger_lots import info
 import sys
 
+
+@pytest.fixture(autouse=True)
+def clear_price_cache():
+    info.LAST_PRICE_DICT.clear()
+    yield
 
 
 def price_journal(price: str):
@@ -55,13 +62,15 @@ def journals(tmp_path: Path):
 @pytest.fixture()
 def fifo_info(journals: Tuple[str, ...], monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(sys, "stdin", None)
-    return FifoInfo(journals, "AAPL", False)
+    txns = all_commodity_txns(journals)
+    return FifoInfo(journals, "AAPL", txns.get("AAPL", []), False)
+
 
 @pytest.fixture()
 def avg_info(journals: Tuple[str, ...], monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(sys, "stdin", None)
-    return AvgInfo(journals, "AAPL", False)
-
+    txns = all_commodity_txns(journals)
+    return AvgInfo(journals, "AAPL", txns.get("AAPL", []), False)
 
 
 class TestInfo:
@@ -79,7 +88,8 @@ class TestInfo:
         file_tup = (str(file_path),)
 
         monkeypatch.setattr(sys, "stdin", None)
-        fifo_info = FifoInfo(file_tup, "AAPL", False)
+        txns = all_commodity_txns(file_tup)
+        fifo_info = FifoInfo(file_tup, "AAPL", txns.get("AAPL", []), False)
 
         assert fifo_info.last_price == (date(2023, 2, 1), expected)
 

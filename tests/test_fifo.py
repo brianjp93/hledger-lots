@@ -57,10 +57,10 @@ class TestTxn2Hl:
         expected = """2022-02-01 Sold USD  ; cost_method:fifo
     ; commodity:USD, qtty:5.00, price:32.00
     ; avg_cost:26.0000, xirr:61.42% annual percent rate 30/360US
-    Bank                 160.00 USD
-    Acct1      -2.00 USD @ 35.0 USD  ; buy_date:2022-01-12, base_cur:USD
-    Acct1      -3.00 USD @ 20.0 USD  ; buy_date:2022-01-14, base_cur:USD
-    Revenue              -30.00 USD
+    Bank                160.00 USD
+    Acct1      -2.0 USD @ 35.0 USD  ; buy_date:2022-01-12, base_cur:USD
+    Acct1      -3.0 USD @ 20.0 USD  ; buy_date:2022-01-14, base_cur:USD
+    Revenue             -30.00 USD
 
 """
 
@@ -75,10 +75,10 @@ class TestTxn2Hl:
         expected = """2022-02-01 Sold USD  ; cost_method:fifo
     ; commodity:USD, qtty:5.00, price:16.00
     ; avg_cost:26.0000, xirr:-1.00% annual percent rate 30/360US
-    Bank                  80.00 USD
-    Acct1      -2.00 USD @ 35.0 USD  ; buy_date:2022-01-12, base_cur:USD
-    Acct1      -3.00 USD @ 20.0 USD  ; buy_date:2022-01-14, base_cur:USD
-    Revenue               50.00 USD
+    Bank                 80.00 USD
+    Acct1      -2.0 USD @ 35.0 USD  ; buy_date:2022-01-12, base_cur:USD
+    Acct1      -3.0 USD @ 20.0 USD  ; buy_date:2022-01-14, base_cur:USD
+    Revenue              50.00 USD
 
 """
 

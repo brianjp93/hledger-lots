@@ -50,7 +50,7 @@ def get_last_price_dict(files_comm: list[str]):
     if not prices_str:
         return {}
     for d_string, commodity, price in re.findall(
-        r'(\d+-\d+-\d+) "?([^\s"]+)"?[^\d]*(\d+\.\d+)', prices_str
+        r'(\d+-\d+-\d+) "?([^\s"]+)"?[^\d]*(\d+(?:\.\d+)?)', prices_str
     ):
         comm = commodity.upper()
         if comm not in LAST_PRICE_DICT:

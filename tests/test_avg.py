@@ -142,7 +142,7 @@ class TestAvgSell:
     ; xirr:3.56% annual percent rate 30/360US
     Asset:Bank                                    1000.00 USD
     Acct1                   -50 AAPL @ 17.848837209302324 USD
-    Revenue:Capital Gain               -107.5581395348838 USD
+    Revenue:Capital Gain             -107.558139534883800 USD
 
 """
 
